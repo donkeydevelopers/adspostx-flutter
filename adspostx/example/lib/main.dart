@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:adspostx/adspostx.dart';
+import 'package:flutter/material.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,7 +13,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-
   @override
   void initState() {
     super.initState();
@@ -25,7 +24,6 @@ class _MyAppState extends State<MyApp> {
       home: TestPage(),
     );
   }
-
 }
 
 class TestPage extends StatelessWidget {
@@ -37,9 +35,7 @@ class TestPage extends StatelessWidget {
         child: Center(
           child: ElevatedButton(
             onPressed: () {
-              Adspostx.materialDialog(
-                context: context
-              );
+              Adspostx.show(context: context);
             },
             child: Text("Open Dialog"),
           ),

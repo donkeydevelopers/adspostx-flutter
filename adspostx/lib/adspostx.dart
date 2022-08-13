@@ -1,8 +1,19 @@
-
-import 'adspostx_platform_interface.dart';
+import 'package:adspostx/dialog_widget.dart';
+import 'package:flutter/material.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class Adspostx {
-  Future<String?> getPlatformVersion() {
-    return AdspostxPlatform.instance.getPlatformVersion();
+
+  static Future<void> materialDialog({
+    required BuildContext context
+  }) async {
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          child: DialogWidget(),
+        );
+      },
+    );
   }
 }

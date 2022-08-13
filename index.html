@@ -1,0 +1,183 @@
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.adspostx.com/embed.css">
+    <!-- <link rel="stylesheet" href="embed.css"> -->
+    <title>Document</title>
+
+    <style>
+        .adpx_display {
+            display: none;
+        }
+
+        .adpx_animate {
+            animation: fadeIn 1s;
+        }
+    </style>
+</head>
+
+<body>
+<div class="adpx_display" style="display: block;">
+    <div class="adpx_modal-content adpx_animate">
+        <div class="adpx_modal-header"> Your order is complete
+            <span onclick="closeFunction()" id="adpx_close" class="adpx_close">×</span>
+        </div>
+        <div class="adpx_animate-offer">
+            <div class="adpx_float-right adpx_logo"> <img id="adpx_Logo" alt="" src="https://s3.eu-central-1.amazonaws.com/storage.scaleo.io/offers/img62ebe7569cc90.png"> </div>
+            <div class="adpx_p-25 adpx_my-16">
+                <p id="adpx_Heading" class="adpx_text-bold">Your purchase unlocked a FREE $5 Amazon Gift Card</p>
+                <div id="adpx_Body" class="adpx_my-16"><p>Congratulations {firstname|!},  You just earned a $5 Amazon Gift Card with your order. Collect it now!</p></div>
+                <div class="adpx_button-group"> <button id="adpx_CTA" class="adpx_button adpx_blue-button">Yes Please</button>
+                    <button id="adpx_CTA-N" class="adpx_button adpx_white-button adpx_faded">No Thanks</button> </div> <span class="adpx_small-font adpx_mt-10"></span>
+            </div>
+        </div>
+        <div class="adpx_small-font adpx_mt-10 adpx_p-25"> <span id="adpx_offer">Offer 1 of 2</span><br> <span class="adpx_faded">External link. Clicking an offer will take you to the advertiser\'s website and
+                    is subjected to the terms inked above</span> </div>
+        <div class="adpx_modal-footer adpx_faded"> Powered by <a href="https://adspostx.com">AdsPostX</a> | <a href="https://www.adspostx.com/privacy">Privacy Policy</a>
+            <img id="adpx_PixelTracker" alt="" src="https://track.adspostx.com/imp/41/6/p.gif?cachebuster=1660388698956">
+        </div>
+    </div>
+</div>
+
+
+
+
+<script>
+        var times = 0, offer_count = 0;
+        var data, API_URL, title, description, link, image, response, offer, accountId, close_btn, result = [], timestamp;
+
+        (async () => {
+            try {
+                var urlParams = new URLSearchParams(window.location.search);
+                accountId = urlParams.get('accountId');
+                close_btn = urlParams.get('close');
+
+                API_URL = "https://api.adpx.us/" + window.location.search;
+                // console.log(API_URL);
+
+                response = await fetch(API_URL);
+                if (response.status == 200) {
+                    offer = await response.json();
+                    offer = offer.info.offers;
+                    console.log("Reading from API");
+
+                    for (var key in offer) {
+                        if (offer[key].advertiser_id == 4) {
+                            result.push(offer[key]);
+                        }
+                    }
+                    // console.log(result);
+                } else {
+                    console.log("Reading from Sample Data");
+                }
+            } catch (error) {
+                console.log("Error...");
+            }
+            getData();
+            // setTimeout(getData, 2000);
+        })();
+
+
+        function closeFunction() {
+            try {
+                document.querySelectorAll(".adpx_display").forEach(e => e.remove());
+                window.parent.postMessage({
+                    "close": true,
+                }, "*");
+                call_dismiss();
+            } catch (error) {
+                console.log("Error...");
+            }
+        }
+
+        function call_dismiss(){
+
+            Flutter.postMessage('Hello World being called from Javascript code');
+
+            if (Android) {
+                // console.log("Android call");
+                Android.dialogDismiss();
+            }
+        }
+
+        async function getData() {
+
+            times++;
+            if (times < 3) {
+                offer_count++;
+                if (result.length >= 2) {
+                    var rand = Math.floor(Math.random() * result.length)
+                    data = result[rand];
+                } else {
+                    data = result[0];
+                    times++;
+                }
+            }
+
+            timestamp = new Date().getTime();
+            console.log(`https://track.adspostx.com/imp/${data.id}/${accountId}/p.gif?cachebuster=${timestamp}`);
+
+            title = data.title;
+            description = data.description;
+
+            if ((typeof (data.tracking_domain)) == "object") {
+                link = data.tracking_domain.name;
+            } else {
+                link = JSON.parse(data.tracking_domain);
+                // Ashwin: Temporary fix for the issue of the trk.adspostx link not working
+                link = `https://bajaar.scaletrk.com/click?o=${data.id}&a=${accountId}`;
+            }
+            console.log(link);
+
+            image = data.image;
+            if (!image) {
+                image = "./img/sample.png";
+            } else {
+                image = "https://s3.eu-central-1.amazonaws.com/storage.scaleo.io/offers/" + image;
+            }
+
+            if (data) {
+                document.getElementById("adpx_CTA").innerHTML = "Yes Please";
+                document.getElementById("adpx_CTA-N").innerHTML = "No Thanks";
+                document.getElementById("adpx_Heading").innerHTML = title;
+                document.getElementById("adpx_Body").innerHTML = description;
+                document.getElementById("adpx_Logo").src = image;
+                document.getElementById("adpx_PixelTracker").src = `https://track.adspostx.com/imp/${data.id}/${accountId}/p.gif?cachebuster=${timestamp}`;
+
+                if (result.length >= 2) {
+                    document.getElementById("adpx_offer").innerHTML = "Offer " + offer_count + " of 2";
+                } else {
+                    document.getElementById("adpx_offer").innerHTML = "Offer " + offer_count + " of 1";
+                }
+
+                x = document.querySelector('.adpx_animate-offer')
+                document.getElementById("adpx_CTA").onclick = () => {
+                    x.style.setProperty('animation', 'fadeOut 2s');
+                    x.style.setProperty('animation', 'fadeIn 1s');
+                    window.open(link, '_blank');
+                    getData();
+                };
+                document.getElementById("adpx_CTA-N").onclick = () => {
+                    x.style.setProperty('animation', 'fadeOut 2s');
+                    x.style.setProperty('animation', 'fadeIn 1s');
+                    getData();
+                };
+            }
+
+            element = document.querySelector('.adpx_display');
+            if (times <= 2) {
+                element.style.setProperty('display', 'block');
+            } else {
+                closeFunction();
+            }
+
+            if (close_btn == "0") {
+                document.getElementById("adpx_close").style.setProperty('display', 'none');
+            }
+
+        }
+    </script>
+
+
+</body></html>
